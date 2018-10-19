@@ -14,6 +14,14 @@ BOT_NAME = 'hongxiu'
 SPIDER_MODULES = ['hongxiu.spiders']
 NEWSPIDER_MODULE = 'hongxiu.spiders'
 
+#下载超时
+DOWNLOAD_TIMEOUT = 10
+#下载重试
+RETRY_ENABLED = True
+#下载重试次数
+RETRY_TIMES = 10
+
+HONGXIU_OUTPUT = os.path.abspath(os.path.dirname(__file__)) + '/../data/hongxiu.list'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'hongxiu (+http://www.yourdomain.com)'
