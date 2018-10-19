@@ -1,9 +1,10 @@
 # encoding:utf-8
 
+
 from scrapy.spiders import CrawlSpider
 import scrapy
 import re
-#from bs4 import BeautifulSoup
+import logging
 from hongxiu.items import HongxiuItem 
 
 class hongxiuSpider(scrapy.Spider):
@@ -12,25 +13,34 @@ class hongxiuSpider(scrapy.Spider):
 
 	def start_requests(self):
 		start_urls = []
-		for i in range(1, 2):
+		for i in range(1, 20):
 			url = "https://www.hongxiu.com/all?&pageSize=10&gender=2&catId=30020&isFinish=-1&isVip=-1&size=-1&updT=-1&orderBy=0&pageNum=%d"%i
+			url = scrapy.Request(url)
+			start_urls.append(url)
+			
+			url = "https://www.hongxiu.com/all?&pageSize=10&gender=2&catId=30013&isFinish=-1&isVip=-1&size=-1&updT=-1&orderBy=0&pageNum=%d"%i
+			url = scrapy.Request(url)
+			start_urls.append(url)
+
+			url = "https://www.hongxiu.com/all?&pageSize=10&gender=2&catId=30031&isFinish=-1&isVip=-1&size=-1&updT=-1&orderBy=0&pageNum=%d"%i
 			url = scrapy.Request(url)
 			start_urls.append(url)
 		return start_urls
 
 	def parse(self, response):
-		print "start crawling"
+		self.logger.info('start parse, url:%s', response.url)
 		for one in response.xpath('//html/body/div/div[2]/div[2]/div[2]/div[1]/ul/li'):
 			path = one.xpath('div[2]/h3/a/@href').extract_first()
 			url = response.urljoin(path)
 			yield scrapy.Request(url, callback=self.parseDetail)
 	
 	def parseDetail(self, response):
-		print "start detail"
+		self.logger.info('start detail, url:%s', response.url)
 		item = HongxiuItem()
+		item['origin'] = 'hongxiu'
+		item['url'] = response.url
 		item['title'] = response.xpath("/html/body/div/div[2]/div[4]/div[1]/div[2]/h1/em/text()").extract_first()
 		item['author'] = response.xpath("/html/body/div/div[2]/div[4]/div[1]/div[2]/h1/a/text()").extract_first()
-		item['url'] = response.url
 		item['length'] = response.xpath("/html/body/div/div[2]/div[4]/div[1]/div[2]/p[2]/span[1]/text()").extract_first()
 		item['likeCount'] = response.xpath("/html/body/div/div[2]/div[4]/div[1]/div[2]/p[2]/span[2]/text()").extract_first()
 		item['pvCount'] = response.xpath("/html/body/div/div[2]/div[4]/div[1]/div[2]/p[2]/span[3]/text()").extract_first()
@@ -38,6 +48,7 @@ class hongxiuSpider(scrapy.Spider):
 		item['chapterCount'] = response.xpath('//*[@id="J-catalogCount"]/text()').extract_first()
 		item['level'] = response.xpath("//i[@class='red']/text()").extract_first()
 		item['vip'] = response.xpath("//i[@class='org']/text()").extract_first()
+		item['updateAt'] = response.xpath("/html/body/div/div[2]/div[4]/div[2]/div[2]/p/span/text()").extract_first()
 		(item['workState'],item['isDeal']) = response.xpath("//i[@class='blue']/text()").extract()
 		item['cat'] = [];
 
@@ -45,7 +56,6 @@ class hongxiuSpider(scrapy.Spider):
 		ilist = response.xpath("/html/body/div/div[2]/div[4]/div[1]/div[2]/p[1]/span/i")
 		for one in ilist:
 			color = one.xpath("@class").extract_first()
-			print color
 			if not color:
 				item['cat'].append(one.xpath("text()").extract_first())
 

@@ -14,6 +14,7 @@ class HongxiuItem(scrapy.Item):
 	title = scrapy.Field()
 	author = scrapy.Field()
 	url = scrapy.Field()		#原文url
+	origin = scrapy.Field()		#来源，如潇湘、起点等
 	cat = scrapy.Field()		#作品类别
 	level = scrapy.Field()		#作品等级
 	workState = scrapy.Field()  #连载中 or 已完结
@@ -25,5 +26,7 @@ class HongxiuItem(scrapy.Item):
 	likeCount = scrapy.Field()		#收藏量
 	chapterCount = scrapy.Field()	#章节数
 	descript = scrapy.Field()		#简介
+	tags = scrapy.Field()			#标签,数组
+	updateAt = scrapy.Field()		#更新时间，潇湘：date格式，红袖：多久前
 
 	pass
